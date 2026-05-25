@@ -9,9 +9,9 @@ This is an updated version of my previous .net 4.8 project, now using:
     Extent Reports 5.0.4
 
 Basic Project Structure: 
-Framework - Config files, General Setup, Reporting (when not using CI/CD), Misc stuff (like test data generators)
-PageObjects - Page locators/Xpaths/Selectors. They are organized into their own classes by page (or component part).
-Tests - This is where the tests, and their actions live. Organized the same way PageObjects are.
+Framework - Config files, General Setup, Reporting (when not using CI/CD), Misc stuff (like test data generators)  
+PageObjects - Page locators/Xpaths/Selectors. They are organized into their own classes by page (or component part).  
+Tests - This is where the tests, and their actions live. Organized the same way PageObjects are.  
 
 Features to be added and/or moved from my old project to this one, aka, the Roadmap=========
 
