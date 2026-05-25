@@ -1,0 +1,97 @@
+name: .NET Selenium Test Automation CI
+run-name: ${{ github.actor }} triggered a ${{ github.event_name }} event.
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Echo status
+        run: echo "✅ Repository checked out successfully"
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Echo status
+        run: echo "✅ .NET 10 setup complete"
+
+      - name: Install Firefox
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Install GeckoDriver
+        uses: browser-actions/setup-geckodriver@latest
+
+      - name: Echo status
+        run: echo "✅ Firefox and GeckoDriver installed"
+
+      - name: Install dependencies
+        run: dotnet restore SeleniumTestFramework_DotNetTen.sln
+
+      - name: Echo status
+        run: echo "✅ Dependencies restored"
+
+      - name: Build
+        run: dotnet build SeleniumTestFramework_DotNetTen.sln --no-restore --configuration Release
+
+      - name: Echo status
+        run: echo "✅ Build succeeded"
+
+      - name: Run tests (headless)
+        run: dotnet test SeleniumTestFramework_DotNetTen.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --filter "TestCategory=API"
+        env:
+          SELENIUM_HEADLESS: true
+          SELENIUM_BROWSER: firefox
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+
+      - name: Echo status
+        run: echo "✅ Tests completed"
+
+      #This allows me to keep the reports in the ExtentReport folder while running locally,
+      #AND add them to artifacts when using CI/CD. (It's a personal preference.)
+      - name: Copy ExtentReports to workspace
+        if: always()
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/ExtentReports
+          find / -type d -name "ExtentReports" ! -path "$GITHUB_WORKSPACE/ExtentReports" 2>/dev/null | while read dir; do
+            cp -r "$dir"/. "$GITHUB_WORKSPACE/ExtentReports/"
+          done
+          echo "✅ ExtentReports copied to workspace"
+
+      - name: Upload page source
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: page-source
+          path: '**/page-source.html'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: '**/test-results.trx'
+
+      - name: Upload ExtentReports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: extent-reports
+          path: 'ExtentReports/**'
+
+      - name: Echo status
+        run: echo "✅ Artifacts uploaded — workflow complete"
