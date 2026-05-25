@@ -1,0 +1,24 @@
+# Build output
+bin/
+obj/
+
+# IDE - JetBrains Rider
+.idea/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Test results and reports
+TestResults/
+ExtentReports/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary debug files
+page-source.html
+
+test.runsettings
